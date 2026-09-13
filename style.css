@@ -1,4 +1,3 @@
-/* Сброс базовых стилей */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -13,14 +12,12 @@ body {
   overflow: hidden;
 }
 
-/* Главный контейнер (сплит-экран) */
 .app-container {
   display: flex;
   width: 100vw;
   height: 100vh;
 }
 
-/* Левая часть: Предпросмотр (Canvas) */
 .preview-area {
   flex: 1;
   height: 100%;
@@ -38,7 +35,6 @@ canvas {
   height: 100%;
 }
 
-/* Правая часть: Боковая панель управления */
 .sidebar {
   width: 340px;
   height: 100%;
@@ -53,6 +49,13 @@ canvas {
   overflow-x: hidden;
 }
 
+.sidebar-header .header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
 .sidebar-header h2 {
   font-size: 1.4rem;
   font-weight: 600;
@@ -65,14 +68,64 @@ canvas {
   margin-top: 4px;
 }
 
-/* Группы настроек */
+.lang-select {
+  background-color: #2a2a32;
+  color: #ffffff;
+  border: 1px solid #3f3f46;
+  padding: 2px 6px;
+  border-radius: 4px;
+  outline: none;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.icon-btn {
+  background: transparent;
+  border: 1px solid #3f3f46;
+  color: #a1a1aa;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.icon-btn:hover {
+  background: #2a2a32;
+  color: #ffffff;
+}
+
 .controls {
   display: flex;
   flex-direction: column;
   gap: 20px;
   overflow-y: auto;
   overflow-x: hidden;
-  padding-right: 4px; /* Отступ для красивого скроллбара */
+  padding-right: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.controls::-webkit-scrollbar {
+  width: 6px;
+}
+
+.controls::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.controls::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+  transition: background 0.2s ease;
+}
+
+.controls::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
 }
 
 .control-group {
@@ -111,7 +164,6 @@ canvas {
   text-overflow: ellipsis;
 }
 
-/* Элементы ввода (фикс выпирания) */
 .select-input,
 input[type="range"],
 input[type="color"] {
@@ -136,7 +188,6 @@ input[type="color"] {
   border-color: #6366f1;
 }
 
-/* Кастомизация полей ввода */
 input[type="color"] {
   border: none;
   width: 32px;
@@ -153,7 +204,6 @@ input[type="range"] {
   width: 100%;
 }
 
-/* Кнопки экспорта */
 .btn {
   width: 100%;
   padding: 10px 16px;
@@ -184,82 +234,6 @@ input[type="range"] {
   cursor: not-allowed;
 }
 
-/* Стильный тонкий скроллбар (Firefox) */
-.controls {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
-}
-
-/* Стильный тонкий скроллбар (Chrome, Edge, Safari) */
-.controls::-webkit-scrollbar {
-  width: 6px;
-}
-
-.controls::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.controls::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 3px;
-  transition: background 0.2s ease;
-}
-
-.controls::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
-}
-
-.sidebar-header .header-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.lang-select {
-  background-color: #2a2a32;
-  color: #ffffff;
-  border: 1px solid #3f3f46;
-  padding: 2px 6px;
-  border-radius: 4px;
-  outline: none;
-  cursor: pointer;
-  font-size: 0.8rem;
-  font-weight: 600;
-}
-
-/* Header layout updates */
-.sidebar-header .header-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.icon-btn {
-  background: transparent;
-  border: 1px solid #3f3f46;
-  color: #a1a1aa;
-  width: 28px;
-  height: 28px;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s;
-}
-
-.icon-btn:hover {
-  background: #2a2a32;
-  color: #ffffff;
-}
-
-/* Modal styling */
 .modal-overlay {
   position: fixed;
   top: 0;
