@@ -20,16 +20,16 @@
 
       <div class="controls">
         <div class="control-group">
-          <h3>Режим</h3>
+          <h3>Режим и Движение</h3>
           <label class="control-item">
             <span>Расположение</span>
             <select id="layoutMode" class="select-input">
+              <option value="grid" selected>Сетка (Классическая)</option>
               <option value="drones">Шоу дронов (Волны)</option>
-              <option value="grid">Сетка (Классическая)</option>
               <option value="random">Хаотичный</option>
             </select>
           </label>
-          <label class="control-item" id="waveModeContainer">
+          <label class="control-item" id="waveModeContainer" style="display: none;">
             <span>Тип волны</span>
             <select id="waveMode" class="select-input">
               <option value="horizontal">Горизонтальная</option>
@@ -38,10 +38,22 @@
             </select>
           </label>
           <label class="control-item">
-            <span>Движение</span>
+            <span>Тип движения</span>
             <select id="moveMode" class="select-input">
-              <option value="static">Статично (Мерцание)</option>
+              <option value="static" selected>Статично (Мерцание)</option>
               <option value="drift">Дрейф (Космос)</option>
+              <option value="fly">Полёт (Кометы)</option>
+            </select>
+          </label>
+          <label class="control-item" id="flyDirectionContainer" style="display: none;">
+            <span>Направление полёта</span>
+            <select id="flyDirection" class="select-input">
+              <option value="random">Случайно</option>
+              <option value="right">Вправо ➔</option>
+              <option value="left">Влево ⬅</option>
+              <option value="down">Вниз ⬇</option>
+              <option value="up">Вверх ⬆</option>
+              <option value="down-right">По диагонали ↘</option>
             </select>
           </label>
         </div>
@@ -64,10 +76,14 @@
               <option value="diamond">Ромбы</option>
             </select>
           </label>
+          <label class="control-item" id="trailContainer" style="display: none;">
+            <span>Длина шлейфа (Trails)</span>
+            <input type="range" id="trailLength" min="1" max="9" value="5">
+          </label>
         </div>
 
         <div class="control-group">
-          <h3>Параметры</h3>
+          <h3>Параметры сетки и частиц</h3>
           <label class="control-item" id="dotCountContainer" style="display: none;">
             <span>Количество точек</span>
             <input type="range" id="dotCount" min="10" max="1000" value="150">
@@ -80,12 +96,12 @@
             <span>Размер точек</span>
             <input type="range" id="dotSize" min="1" max="10" value="2">
           </label>
-          <label class="control-item" id="waveWidthContainer">
+          <label class="control-item" id="waveWidthContainer" style="display: none;">
             <span>Ширина волны</span>
             <input type="range" id="waveWidth" min="1" max="20" value="8">
           </label>
           <label class="control-item">
-            <span>Скорость волны</span>
+            <span>Скорость</span>
             <input type="range" id="flickerSpeed" min="1" max="10" value="5">
           </label>
         </div>
@@ -101,7 +117,7 @@
             </select>
           </label>
           <button id="btnExportPng" class="btn btn-primary">Скачать PNG</button>
-          <button id="btnExportMp4" class="btn btn-secondary">Записать бесшовное видео</button>
+          <button id="btnExportMp4" class="btn btn-secondary">Записать видео</button>
         </div>
       </div>
     </aside>

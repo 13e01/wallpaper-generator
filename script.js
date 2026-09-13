@@ -4,9 +4,12 @@ const ctx = canvas.getContext('2d');
 const layoutModeSelect = document.getElementById('layoutMode');
 const waveModeSelect = document.getElementById('waveMode');
 const moveModeSelect = document.getElementById('moveMode');
+const flyDirectionSelect = document.getElementById('flyDirection');
 const bgColorInput = document.getElementById('bgColor');
 const dotColorInput = document.getElementById('dotColor');
 const dotShapeSelect = document.getElementById('dotShape');
+
+const trailLengthInput = document.getElementById('trailLength');
 
 const dotCountInput = document.getElementById('dotCount');
 const gridSpacingInput = document.getElementById('gridSpacing');
@@ -22,6 +25,8 @@ const dotCountContainer = document.getElementById('dotCountContainer');
 const gridSpacingContainer = document.getElementById('gridSpacingContainer');
 const waveModeContainer = document.getElementById('waveModeContainer');
 const waveWidthContainer = document.getElementById('waveWidthContainer');
+const trailContainer = document.getElementById('trailContainer');
+const flyDirectionContainer = document.getElementById('flyDirectionContainer');
 
 let dots = [];
 let dpr = 1;
@@ -50,18 +55,37 @@ function resizeCanvas() {
   initDots();
 }
 
+function getVectorByDirection(dir) {
+  const baseSpeed = Math.random() * 1.5 + 0.5;
+  switch (dir) {
+    case 'right': return { vx: baseSpeed, vy: 0 };
+    case 'left': return { vx: -baseSpeed, vy: 0 };
+    case 'up': return { vx: 0, vy: -baseSpeed };
+    case 'down': return { vx: 0, vy: baseSpeed };
+    case 'down-right': return { vx: baseSpeed * 0.7, vy: baseSpeed * 0.7 };
+    case 'random':
+    default:
+      const angle = Math.random() * Math.PI * 2;
+      return { vx: Math.cos(angle) * baseSpeed, vy: Math.sin(angle) * baseSpeed };
+  }
+}
+
 function initDots() {
   dots = [];
   const mode = layoutModeSelect.value;
+  const dir = flyDirectionSelect.value;
   const logicalWidth = canvas.width / dpr;
   const logicalHeight = canvas.height / dpr;
 
   if (mode === 'random') {
     const count = parseInt(dotCountInput.value);
     for (let i = 0; i < count; i++) {
+      const vec = getVectorByDirection(dir);
       dots.push({
         x: Math.random() * logicalWidth,
         y: Math.random() * logicalHeight,
+        vx: vec.vx,
+        vy: vec.vy,
         radiusOffset: Math.random() * 15,
         phaseOffset: Math.random() * Math.PI * 2,
         cycles: Math.floor(Math.random() * 3) + 1,
@@ -78,9 +102,12 @@ function initDots() {
 
     for (let c = 0; c < cols; c++) {
       for (let r = 0; r < rows; r++) {
+        const vec = getVectorByDirection(dir);
         dots.push({
           x: offsetX + c * spacing,
           y: offsetY + r * spacing,
+          vx: vec.vx,
+          vy: vec.vy,
           radiusOffset: Math.random() * 8,
           phaseOffset: Math.random() * Math.PI * 2,
           cycles: Math.floor(Math.random() * 3) + 1,
@@ -93,7 +120,8 @@ function initDots() {
 
 function toggleModeControls() {
   const mode = layoutModeSelect.value;
-  
+  const moveMode = moveModeSelect.value;
+
   if (mode === 'random') {
     dotCountContainer.style.display = 'flex';
     gridSpacingContainer.style.display = 'none';
@@ -110,6 +138,10 @@ function toggleModeControls() {
     waveModeContainer.style.display = 'flex';
     waveWidthContainer.style.display = 'flex';
   }
+
+  trailContainer.style.display = (moveMode === 'drift' || moveMode === 'fly') ? 'flex' : 'none';
+  flyDirectionContainer.style.display = moveMode === 'fly' ? 'flex' : 'none';
+
   initDots();
 }
 
@@ -130,8 +162,19 @@ function drawShape(x, y, radius, shape) {
 }
 
 function animate() {
-  ctx.fillStyle = bgColorInput.value;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  const moveMode = moveModeSelect.value;
+  const trailValue = parseInt(trailLengthInput.value);
+  const isTrailActive = (moveMode === 'drift' || moveMode === 'fly') && trailValue > 0;
+
+  if (isTrailActive) {
+    const bgRgb = hexToRgb(bgColorInput.value);
+    const alphaTrail = (10 - trailValue) * 0.04; 
+    ctx.fillStyle = `rgba(${bgRgb.r}, ${bgRgb.g}, ${bgRgb.b}, ${alphaTrail})`;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  } else {
+    ctx.fillStyle = bgColorInput.value;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
 
   const loopDuration = parseFloat(loopDurationSelect.value);
   const elapsedTime = ((Date.now() - startTime) / 1000) % loopDuration;
@@ -143,7 +186,6 @@ function animate() {
   
   const mode = layoutModeSelect.value;
   const waveMode = waveModeSelect.value;
-  const isDrift = moveModeSelect.value === 'drift';
   const shape = dotShapeSelect.value;
   const rgb = hexToRgb(dotColorInput.value);
 
@@ -157,7 +199,6 @@ function animate() {
 
     if (mode === 'drones') {
       let spatialPhase = 0;
-      // Используем ширину волны для регулировки плотности полосы
       const waveFreq = waveWidthVal * 0.002;
 
       if (waveMode === 'horizontal') {
@@ -170,9 +211,8 @@ function animate() {
         spatialPhase = (dot.x + dot.y) * waveFreq;
       }
 
-      // Плавная регулировка волны без долгой «чёрной пропасти»
       const rawWave = Math.sin((progress * (speedVal / 3)) - spatialPhase);
-      alpha = 0.5 + 0.5 * rawWave; // Градиент от 0 до 1 без обрезания нижнего спектра
+      alpha = 0.5 + 0.5 * rawWave;
     } else {
       alpha = 0.1 + 0.8 * (0.5 + 0.5 * Math.sin(progress * dot.cycles + dot.phaseOffset));
     }
@@ -180,9 +220,20 @@ function animate() {
     let currentX = dot.x;
     let currentY = dot.y;
 
-    if (isDrift) {
+    if (moveMode === 'drift') {
       currentX += Math.cos(progress) * dot.radiusOffset;
       currentY += Math.sin(progress) * dot.radiusOffset;
+    } else if (moveMode === 'fly') {
+      dot.x += dot.vx * (speedVal / 3);
+      dot.y += dot.vy * (speedVal / 3);
+
+      if (dot.x < 0) dot.x = logicalWidth;
+      if (dot.x > logicalWidth) dot.x = 0;
+      if (dot.y < 0) dot.y = logicalHeight;
+      if (dot.y > logicalHeight) dot.y = 0;
+
+      currentX = dot.x;
+      currentY = dot.y;
     }
 
     const renderX = currentX * dpr;
@@ -210,7 +261,7 @@ btnExportMp4.addEventListener('click', () => {
   const chunks = [];
 
   btnExportMp4.disabled = true;
-  btnExportMp4.innerText = `Запись петли (${duration}s)...`;
+  btnExportMp4.innerText = `Запись (${duration}s)...`;
 
   recorder.ondataavailable = e => chunks.push(e.data);
   recorder.onstop = () => {
@@ -218,12 +269,12 @@ btnExportMp4.addEventListener('click', () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `drone_wallpaper_${duration}s.webm`;
+    a.download = `wallpaper_${duration}s.webm`;
     a.click();
     URL.revokeObjectURL(url);
 
     btnExportMp4.disabled = false;
-    btnExportMp4.innerText = 'Записать бесшовное видео';
+    btnExportMp4.innerText = 'Записать видео';
   };
 
   startTime = Date.now();
@@ -236,7 +287,8 @@ btnExportMp4.addEventListener('click', () => {
 
 window.addEventListener('resize', resizeCanvas);
 layoutModeSelect.addEventListener('change', toggleModeControls);
-moveModeSelect.addEventListener('change', initDots);
+moveModeSelect.addEventListener('change', toggleModeControls);
+flyDirectionSelect.addEventListener('change', initDots);
 dotCountInput.addEventListener('input', initDots);
 gridSpacingInput.addEventListener('input', initDots);
 

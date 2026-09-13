@@ -1,5 +1,5 @@
 /* Сброс базовых стилей */
-* {
+*, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -47,9 +47,10 @@ canvas {
   display: flex;
   flex-direction: column;
   padding: 24px;
-  gap: 24px;
+  gap: 20px;
   box-shadow: -4px 0 20px rgba(0, 0, 0, 0.3);
   z-index: 10;
+  overflow-x: hidden;
 }
 
 .sidebar-header h2 {
@@ -70,6 +71,8 @@ canvas {
   flex-direction: column;
   gap: 20px;
   overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 4px; /* Отступ для красивого скроллбара */
 }
 
 .control-group {
@@ -94,20 +97,39 @@ canvas {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
   font-size: 0.9rem;
   color: #d4d4d8;
+  width: 100%;
 }
 
-/* Выпадающий список */
+.control-item span {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Элементы ввода (фикс выпирания) */
+.select-input,
+input[type="range"],
+input[type="color"] {
+  max-width: 55%;
+}
+
 .select-input {
   background-color: #2a2a32;
   color: #ffffff;
   border: 1px solid #3f3f46;
-  padding: 6px 10px;
+  padding: 6px 8px;
   border-radius: 6px;
   outline: none;
   cursor: pointer;
   font-size: 0.85rem;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .select-input:focus {
@@ -122,11 +144,13 @@ input[type="color"] {
   border-radius: 6px;
   cursor: pointer;
   background: transparent;
+  flex-shrink: 0;
 }
 
 input[type="range"] {
   accent-color: #6366f1;
   cursor: pointer;
+  width: 100%;
 }
 
 /* Кнопки экспорта */
@@ -158,4 +182,29 @@ input[type="range"] {
 .btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* Стильный тонкий скроллбар (Firefox) */
+.controls {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+/* Стильный тонкий скроллбар (Chrome, Edge, Safari) */
+.controls::-webkit-scrollbar {
+  width: 6px;
+}
+
+.controls::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.controls::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+  transition: background 0.2s ease;
+}
+
+.controls::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
 }
