@@ -109,11 +109,36 @@
         <div class="control-group">
           <h3>Запись петли (Loop)</h3>
           <label class="control-item">
-            <span>Длина видео (сек)</span>
+            <span>Длина видео</span>
             <select id="loopDuration" class="select-input">
               <option value="4">4 сек</option>
               <option value="6" selected>6 сек</option>
               <option value="8">8 сек</option>
+            </select>
+          </label>
+          <label class="control-item">
+            <span>Формат</span>
+            <select id="exportFormat" class="select-input">
+              <option value="webm" selected>WebM</option>
+              <option value="mp4">MP4 (H.264)</option>
+            </select>
+          </label>
+          <label class="control-item">
+            <span>Разрешение</span>
+            <select id="exportResolution" class="select-input">
+              <option value="native" selected>Экранное (1:1)</option>
+              <option value="1080p">Full HD (1920x1080)</option>
+              <option value="720p">HD (1280x720)</option>
+              <option value="4k">4K Ultra HD (3840x2160)</option>
+            </select>
+          </label>
+          <label class="control-item">
+            <span>Качество (Bitrate)</span>
+            <select id="exportQuality" class="select-input">
+              <option value="5000000">Низкое (5 Mbps)</option>
+              <option value="12000000" selected>Среднее (12 Mbps)</option>
+              <option value="25000000">Высокое (25 Mbps)</option>
+              <option value="50000000">Ультра (50 Mbps)</option>
             </select>
           </label>
           <button id="btnExportPng" class="btn btn-primary">Скачать PNG</button>

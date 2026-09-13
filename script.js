@@ -18,6 +18,9 @@ const waveWidthInput = document.getElementById('waveWidth');
 const flickerSpeedInput = document.getElementById('flickerSpeed');
 
 const loopDurationSelect = document.getElementById('loopDuration');
+const exportFormatSelect = document.getElementById('exportFormat');
+const exportResolutionSelect = document.getElementById('exportResolution');
+const exportQualitySelect = document.getElementById('exportQuality');
 const btnExportPng = document.getElementById('btnExportPng');
 const btnExportMp4 = document.getElementById('btnExportMp4');
 
@@ -31,6 +34,7 @@ const flyDirectionContainer = document.getElementById('flyDirectionContainer');
 let dots = [];
 let dpr = 1;
 let startTime = Date.now();
+let isRecording = false;
 
 function hexToRgb(hex) {
   const bigint = parseInt(hex.slice(1), 16);
@@ -42,6 +46,8 @@ function hexToRgb(hex) {
 }
 
 function resizeCanvas() {
+  if (isRecording) return; // Не меняем размер во время записи
+
   const rect = canvas.parentElement.getBoundingClientRect();
   dpr = window.devicePixelRatio || 1;
 
@@ -249,29 +255,92 @@ function animate() {
   requestAnimationFrame(animate);
 }
 
+// Определение подходящего MimeType
+function getSupportedMimeType(format) {
+  const types = {
+    mp4: [
+      'video/mp4;codecs=avc1.42E01E',
+      'video/mp4',
+      'video/webm;codecs=h264'
+    ],
+    webm: [
+      'video/webm;codecs=vp9',
+      'video/webm;codecs=vp8',
+      'video/webm'
+    ]
+  };
+
+  const candidates = types[format] || types.webm;
+  for (const type of candidates) {
+    if (MediaRecorder.isTypeSupported(type)) {
+      return type;
+    }
+  }
+  return 'video/webm';
+}
+
 btnExportMp4.addEventListener('click', () => {
   const duration = parseFloat(loopDurationSelect.value);
-  const stream = canvas.captureStream(60);
-  
-  const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') 
-    ? 'video/webm;codecs=vp9' 
-    : 'video/webm';
+  const format = exportFormatSelect.value;
+  const resolution = exportResolutionSelect.value;
+  const bitrate = parseInt(exportQualitySelect.value);
 
-  const recorder = new MediaRecorder(stream, { mimeType });
+  isRecording = true;
+
+  // Настройка разрешения Canvas под экспорт
+  const originalWidth = canvas.width;
+  const originalHeight = canvas.height;
+
+  if (resolution === '1080p') {
+    canvas.width = 1920;
+    canvas.height = 1080;
+  } else if (resolution === '720p') {
+    canvas.width = 1280;
+    canvas.height = 720;
+  } else if (resolution === '4k') {
+    canvas.width = 3840;
+    canvas.height = 2160;
+  }
+
+  initDots();
+
+  const mimeType = getSupportedMimeType(format);
+  const stream = canvas.captureStream(60);
+
+  let recorder;
+  try {
+    recorder = new MediaRecorder(stream, {
+      mimeType,
+      videoBitsPerSecond: bitrate
+    });
+  } catch (e) {
+    recorder = new MediaRecorder(stream, { videoBitsPerSecond: bitrate });
+  }
+
   const chunks = [];
 
   btnExportMp4.disabled = true;
   btnExportMp4.innerText = `Запись (${duration}s)...`;
 
-  recorder.ondataavailable = e => chunks.push(e.data);
+  recorder.ondataavailable = e => {
+    if (e.data && e.data.size > 0) chunks.push(e.data);
+  };
+
   recorder.onstop = () => {
+    const ext = mimeType.includes('mp4') ? 'mp4' : 'webm';
     const blob = new Blob(chunks, { type: mimeType });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `wallpaper_${duration}s.webm`;
+    a.download = `wallpaper_${resolution}_${duration}s.${ext}`;
     a.click();
     URL.revokeObjectURL(url);
+
+    // Восстанавливаем Canvas
+    canvas.width = originalWidth;
+    canvas.height = originalHeight;
+    isRecording = false;
+    resizeCanvas();
 
     btnExportMp4.disabled = false;
     btnExportMp4.innerText = 'Записать видео';
