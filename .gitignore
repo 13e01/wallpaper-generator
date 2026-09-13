@@ -1,0 +1,16 @@
+# Системные файлы Windows 11
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+Desktop.ini
+$RECYCLE.BIN/
+
+# Настройки VS Code
+.vscode/
+*.code-workspace
+
+# Временные файлы и логи
+*.log
+.DS_Store
