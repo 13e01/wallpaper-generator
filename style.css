@@ -53,7 +53,12 @@ canvas {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+}
+
+.title-with-lang {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .sidebar-header h2 {
