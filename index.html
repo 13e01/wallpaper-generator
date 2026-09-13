@@ -8,12 +8,10 @@
 </head>
 <body>
   <div class="app-container">
-    <!-- Левая часть: холст для генерации -->
     <main class="preview-area">
       <canvas id="wallpaperCanvas"></canvas>
     </main>
 
-    <!-- Правая часть: панель настроек -->
     <aside class="sidebar">
       <div class="sidebar-header">
         <h2>Настройки</h2>
@@ -21,30 +19,46 @@
       </div>
 
       <div class="controls">
-        <!-- Группа режимов -->
         <div class="control-group">
-          <h3>Режим расположения</h3>
+          <h3>Режим</h3>
           <label class="control-item">
-            <span>Режим</span>
+            <span>Расположение</span>
             <select id="layoutMode" class="select-input">
               <option value="random">Хаотичный</option>
               <option value="grid">Сетка</option>
             </select>
           </label>
+          <label class="control-item">
+            <span>Движение</span>
+            <select id="moveMode" class="select-input">
+              <option value="static">Статично (Мерцание)</option>
+              <option value="drift">Дрейф (Космос)</option>
+            </select>
+          </label>
         </div>
 
-        <!-- Группа настроек фона -->
         <div class="control-group">
-          <h3>Фон</h3>
+          <h3>Внешний вид</h3>
           <label class="control-item">
             <span>Цвет фона</span>
             <input type="color" id="bgColor" value="#000000">
           </label>
+          <label class="control-item">
+            <span>Цвет точек</span>
+            <input type="color" id="dotColor" value="#ffffff">
+          </label>
+          <label class="control-item">
+            <span>Форма элементов</span>
+            <select id="dotShape" class="select-input">
+              <option value="circle">Круги</option>
+              <option value="square">Квадраты</option>
+              <option value="diamond">Ромбы</option>
+            </select>
+          </label>
         </div>
 
-        <!-- Группа настроек точек -->
         <div class="control-group">
-          <h3>Точки</h3>
+          <h3>Параметры</h3>
           <label class="control-item" id="dotCountContainer">
             <span>Количество точек</span>
             <input type="range" id="dotCount" min="10" max="1000" value="150">
@@ -63,7 +77,6 @@
           </label>
         </div>
 
-        <!-- Экспорт -->
         <div class="control-group">
           <h3>Экспорт</h3>
           <button id="btnExportPng" class="btn btn-primary">Cкачать PNG</button>
