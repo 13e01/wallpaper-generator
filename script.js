@@ -30,6 +30,7 @@ const waveModeContainer = document.getElementById('waveModeContainer');
 const waveWidthContainer = document.getElementById('waveWidthContainer');
 const trailContainer = document.getElementById('trailContainer');
 const flyDirectionContainer = document.getElementById('flyDirectionContainer');
+const flickerSpeedContainer = document.getElementById('flickerSpeedContainer');
 
 let dots = [];
 let dpr = 1;
@@ -46,7 +47,7 @@ function hexToRgb(hex) {
 }
 
 function resizeCanvas() {
-  if (isRecording) return; // Не меняем размер во время записи
+  if (isRecording) return;
 
   const rect = canvas.parentElement.getBoundingClientRect();
   dpr = window.devicePixelRatio || 1;
@@ -145,6 +146,8 @@ function toggleModeControls() {
     waveWidthContainer.style.display = 'flex';
   }
 
+  // Показывать регулировку скорости, только если есть анимация
+  flickerSpeedContainer.style.display = (moveMode === 'none') ? 'none' : 'flex';
   trailContainer.style.display = (moveMode === 'drift' || moveMode === 'fly') ? 'flex' : 'none';
   flyDirectionContainer.style.display = moveMode === 'fly' ? 'flex' : 'none';
 
@@ -201,26 +204,29 @@ function animate() {
   const centerY = logicalHeight / 2;
 
   dots.forEach(dot => {
-    let alpha = 0;
+    let alpha = 1.0;
 
-    if (mode === 'drones') {
-      let spatialPhase = 0;
-      const waveFreq = waveWidthVal * 0.002;
+    // Расчёт прозрачности только если не выбран режим "Статично (Без мерцания)"
+    if (moveMode !== 'none') {
+      if (mode === 'drones') {
+        let spatialPhase = 0;
+        const waveFreq = waveWidthVal * 0.002;
 
-      if (waveMode === 'horizontal') {
-        spatialPhase = dot.x * waveFreq;
-      } else if (waveMode === 'radial') {
-        const dx = dot.x - centerX;
-        const dy = dot.y - centerY;
-        spatialPhase = Math.sqrt(dx * dx + dy * dy) * waveFreq;
-      } else if (waveMode === 'diagonal') {
-        spatialPhase = (dot.x + dot.y) * waveFreq;
+        if (waveMode === 'horizontal') {
+          spatialPhase = dot.x * waveFreq;
+        } else if (waveMode === 'radial') {
+          const dx = dot.x - centerX;
+          const dy = dot.y - centerY;
+          spatialPhase = Math.sqrt(dx * dx + dy * dy) * waveFreq;
+        } else if (waveMode === 'diagonal') {
+          spatialPhase = (dot.x + dot.y) * waveFreq;
+        }
+
+        const rawWave = Math.sin((progress * (speedVal / 3)) - spatialPhase);
+        alpha = 0.5 + 0.5 * rawWave;
+      } else {
+        alpha = 0.1 + 0.8 * (0.5 + 0.5 * Math.sin(progress * dot.cycles + dot.phaseOffset));
       }
-
-      const rawWave = Math.sin((progress * (speedVal / 3)) - spatialPhase);
-      alpha = 0.5 + 0.5 * rawWave;
-    } else {
-      alpha = 0.1 + 0.8 * (0.5 + 0.5 * Math.sin(progress * dot.cycles + dot.phaseOffset));
     }
 
     let currentX = dot.x;
@@ -255,7 +261,6 @@ function animate() {
   requestAnimationFrame(animate);
 }
 
-// Определение подходящего MimeType
 function getSupportedMimeType(format) {
   const types = {
     mp4: [
@@ -287,7 +292,6 @@ btnExportMp4.addEventListener('click', () => {
 
   isRecording = true;
 
-  // Настройка разрешения Canvas под экспорт
   const originalWidth = canvas.width;
   const originalHeight = canvas.height;
 
@@ -336,7 +340,6 @@ btnExportMp4.addEventListener('click', () => {
     a.click();
     URL.revokeObjectURL(url);
 
-    // Восстанавливаем Canvas
     canvas.width = originalWidth;
     canvas.height = originalHeight;
     isRecording = false;

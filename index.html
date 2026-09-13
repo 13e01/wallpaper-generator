@@ -40,7 +40,8 @@
           <label class="control-item">
             <span>Тип движения</span>
             <select id="moveMode" class="select-input">
-              <option value="static" selected>Статично (Мерцание)</option>
+              <option value="none">Статично (Без мерцания)</option>
+              <option value="static" selected>Мерцание (Без движения)</option>
               <option value="drift">Дрейф (Космос)</option>
               <option value="fly">Полёт (Кометы)</option>
             </select>
@@ -100,8 +101,8 @@
             <span>Ширина волны</span>
             <input type="range" id="waveWidth" min="1" max="20" value="8">
           </label>
-          <label class="control-item">
-            <span>Скорость</span>
+          <label class="control-item" id="flickerSpeedContainer">
+            <span>Скорость анимации</span>
             <input type="range" id="flickerSpeed" min="1" max="10" value="5">
           </label>
         </div>
