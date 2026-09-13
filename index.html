@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Генератор Живых Обоев</title>
+  <title>Live Wallpaper Generator</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -14,136 +14,142 @@
 
     <aside class="sidebar">
       <div class="sidebar-header">
-        <h2>Настройки</h2>
-        <p>Настройте параметры обоев под себя</p>
+        <div class="header-top">
+          <h2 data-i18n="title">Settings</h2>
+          <select id="langSelect" class="lang-select">
+            <option value="en" selected>EN</option>
+            <option value="ru">RU</option>
+          </select>
+        </div>
+        <p data-i18n="subtitle">Customize your wallpaper parameters</p>
       </div>
 
       <div class="controls">
         <div class="control-group">
-          <h3>Режим и Движение</h3>
+          <h3 data-i18n="groupMode">Mode & Motion</h3>
           <label class="control-item">
-            <span>Расположение</span>
+            <span data-i18n="layout">Layout</span>
             <select id="layoutMode" class="select-input">
-              <option value="grid" selected>Сетка (Классическая)</option>
-              <option value="drones">Шоу дронов (Волны)</option>
-              <option value="random">Хаотичный</option>
+              <option value="grid" selected data-i18n="optGrid">Grid (Classic)</option>
+              <option value="drones" data-i18n="optDrones">Drone Show (Waves)</option>
+              <option value="random" data-i18n="optRandom">Random</option>
             </select>
           </label>
           <label class="control-item" id="waveModeContainer" style="display: none;">
-            <span>Тип волны</span>
+            <span data-i18n="waveType">Wave Type</span>
             <select id="waveMode" class="select-input">
-              <option value="horizontal">Горизонтальная</option>
-              <option value="radial">Радиальная</option>
-              <option value="diagonal">Диагональная</option>
+              <option value="horizontal" data-i18n="optHorizontal">Horizontal</option>
+              <option value="radial" data-i18n="optRadial">Radial</option>
+              <option value="diagonal" data-i18n="optDiagonal">Diagonal</option>
             </select>
           </label>
           <label class="control-item">
-            <span>Тип движения</span>
+            <span data-i18n="moveType">Motion Type</span>
             <select id="moveMode" class="select-input">
-              <option value="none">Статично (Без мерцания)</option>
-              <option value="static" selected>Мерцание (Без движения)</option>
-              <option value="drift">Дрейф (Космос)</option>
-              <option value="fly">Полёт (Кометы)</option>
+              <option value="none" data-i18n="optStaticNoFlicker">Static (No Flicker)</option>
+              <option value="static" selected data-i18n="optFlickerNoMotion">Flicker (No Motion)</option>
+              <option value="drift" data-i18n="optDrift">Drift (Space)</option>
+              <option value="fly" data-i18n="optFly">Fly (Comets)</option>
             </select>
           </label>
           <label class="control-item" id="flyDirectionContainer" style="display: none;">
-            <span>Направление полёта</span>
+            <span data-i18n="flyDirection">Fly Direction</span>
             <select id="flyDirection" class="select-input">
-              <option value="random">Случайно</option>
-              <option value="right">Вправо ➔</option>
-              <option value="left">Влево ⬅</option>
-              <option value="down">Вниз ⬇</option>
-              <option value="up">Вверх ⬆</option>
-              <option value="down-right">По диагонали ↘</option>
+              <option value="random" data-i18n="optDirRandom">Random</option>
+              <option value="right" data-i18n="optDirRight">Right ➔</option>
+              <option value="left" data-i18n="optDirLeft">Left ⬅</option>
+              <option value="down" data-i18n="optDirDown">Down ⬇</option>
+              <option value="up" data-i18n="optDirUp">Up ⬆</option>
+              <option value="down-right" data-i18n="optDirDiagonal">Diagonal ↘</option>
             </select>
           </label>
         </div>
 
         <div class="control-group">
-          <h3>Внешний вид</h3>
+          <h3 data-i18n="groupAppearance">Appearance</h3>
           <label class="control-item">
-            <span>Цвет фона</span>
+            <span data-i18n="bgColor">Background Color</span>
             <input type="color" id="bgColor" value="#000000">
           </label>
           <label class="control-item">
-            <span>Цвет точек</span>
+            <span data-i18n="dotColor">Dot Color</span>
             <input type="color" id="dotColor" value="#ffffff">
           </label>
           <label class="control-item">
-            <span>Форма элементов</span>
+            <span data-i18n="dotShape">Element Shape</span>
             <select id="dotShape" class="select-input">
-              <option value="circle">Круги</option>
-              <option value="square">Квадраты</option>
-              <option value="diamond">Ромбы</option>
+              <option value="circle" data-i18n="optCircle">Circles</option>
+              <option value="square" data-i18n="optSquare">Squares</option>
+              <option value="diamond" data-i18n="optDiamond">Diamonds</option>
             </select>
           </label>
           <label class="control-item" id="trailContainer" style="display: none;">
-            <span>Длина шлейфа (Trails)</span>
+            <span data-i18n="trailLength">Trail Length</span>
             <input type="range" id="trailLength" min="1" max="9" value="5">
           </label>
         </div>
 
         <div class="control-group">
-          <h3>Параметры сетки и частиц</h3>
+          <h3 data-i18n="groupParams">Grid & Particle Settings</h3>
           <label class="control-item" id="dotCountContainer" style="display: none;">
-            <span>Количество точек</span>
+            <span data-i18n="dotCount">Dot Count</span>
             <input type="range" id="dotCount" min="10" max="1000" value="150">
           </label>
           <label class="control-item" id="gridSpacingContainer">
-            <span>Шаг сетки (px)</span>
+            <span data-i18n="gridSpacing">Grid Spacing (px)</span>
             <input type="range" id="gridSpacing" min="15" max="100" value="35">
           </label>
           <label class="control-item">
-            <span>Размер точек</span>
+            <span data-i18n="dotSize">Dot Size</span>
             <input type="range" id="dotSize" min="1" max="10" value="2">
           </label>
           <label class="control-item" id="waveWidthContainer" style="display: none;">
-            <span>Ширина волны</span>
+            <span data-i18n="waveWidth">Wave Width</span>
             <input type="range" id="waveWidth" min="1" max="20" value="8">
           </label>
           <label class="control-item" id="flickerSpeedContainer">
-            <span>Скорость анимации</span>
+            <span data-i18n="animSpeed">Animation Speed</span>
             <input type="range" id="flickerSpeed" min="1" max="10" value="5">
           </label>
         </div>
 
         <div class="control-group">
-          <h3>Запись петли (Loop)</h3>
+          <h3 data-i18n="groupExport">Loop Recording</h3>
           <label class="control-item">
-            <span>Длина видео</span>
+            <span data-i18n="loopDuration">Video Duration</span>
             <select id="loopDuration" class="select-input">
-              <option value="4">4 сек</option>
-              <option value="6" selected>6 сек</option>
-              <option value="8">8 сек</option>
+              <option value="4">4 sec</option>
+              <option value="6" selected>6 sec</option>
+              <option value="8">8 sec</option>
             </select>
           </label>
           <label class="control-item">
-            <span>Формат</span>
+            <span data-i18n="format">Format</span>
             <select id="exportFormat" class="select-input">
               <option value="webm" selected>WebM</option>
               <option value="mp4">MP4 (H.264)</option>
             </select>
           </label>
           <label class="control-item">
-            <span>Разрешение</span>
+            <span data-i18n="resolution">Resolution</span>
             <select id="exportResolution" class="select-input">
-              <option value="native" selected>Экранное (1:1)</option>
+              <option value="native" selected data-i18n="optNative">Screen (1:1)</option>
               <option value="1080p">Full HD (1920x1080)</option>
               <option value="720p">HD (1280x720)</option>
               <option value="4k">4K Ultra HD (3840x2160)</option>
             </select>
           </label>
           <label class="control-item">
-            <span>Качество (Bitrate)</span>
+            <span data-i18n="quality">Quality (Bitrate)</span>
             <select id="exportQuality" class="select-input">
-              <option value="5000000">Низкое (5 Mbps)</option>
-              <option value="12000000" selected>Среднее (12 Mbps)</option>
-              <option value="25000000">Высокое (25 Mbps)</option>
-              <option value="50000000">Ультра (50 Mbps)</option>
+              <option value="5000000" data-i18n="optBitrateLow">Low (5 Mbps)</option>
+              <option value="12000000" selected data-i18n="optBitrateMed">Medium (12 Mbps)</option>
+              <option value="25000000" data-i18n="optBitrateHigh">High (25 Mbps)</option>
+              <option value="50000000" data-i18n="optBitrateUltra">Ultra (50 Mbps)</option>
             </select>
           </label>
-          <button id="btnExportPng" class="btn btn-primary">Скачать PNG</button>
-          <button id="btnExportMp4" class="btn btn-secondary">Записать видео</button>
+          <button id="btnExportPng" class="btn btn-primary" data-i18n="btnPng">Download PNG</button>
+          <button id="btnExportMp4" class="btn btn-secondary" data-i18n="btnVideo">Record Video</button>
         </div>
       </div>
     </aside>

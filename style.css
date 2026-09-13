@@ -208,3 +208,21 @@ input[type="range"] {
 .controls::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.3);
 }
+
+.sidebar-header .header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.lang-select {
+  background-color: #2a2a32;
+  color: #ffffff;
+  border: 1px solid #3f3f46;
+  padding: 2px 6px;
+  border-radius: 4px;
+  outline: none;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 600;
+}

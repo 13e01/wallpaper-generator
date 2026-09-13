@@ -1,6 +1,131 @@
 const canvas = document.getElementById('wallpaperCanvas');
 const ctx = canvas.getContext('2d');
 
+// i18n Dictionary
+const translations = {
+  en: {
+    title: "Settings",
+    subtitle: "Customize your wallpaper parameters",
+    groupMode: "Mode & Motion",
+    layout: "Layout",
+    optGrid: "Grid (Classic)",
+    optDrones: "Drone Show (Waves)",
+    optRandom: "Random",
+    waveType: "Wave Type",
+    optHorizontal: "Horizontal",
+    optRadial: "Radial",
+    optDiagonal: "Diagonal",
+    moveType: "Motion Type",
+    optStaticNoFlicker: "Static (No Flicker)",
+    optFlickerNoMotion: "Flicker (No Motion)",
+    optDrift: "Drift (Space)",
+    optFly: "Fly (Comets)",
+    flyDirection: "Fly Direction",
+    optDirRandom: "Random",
+    optDirRight: "Right ➔",
+    optDirLeft: "Left ⬅",
+    optDirDown: "Down ⬇",
+    optDirUp: "Up ⬆",
+    optDirDiagonal: "Diagonal ↘",
+    groupAppearance: "Appearance",
+    bgColor: "Background Color",
+    dotColor: "Dot Color",
+    dotShape: "Element Shape",
+    optCircle: "Circles",
+    optSquare: "Squares",
+    optDiamond: "Diamonds",
+    trailLength: "Trail Length",
+    groupParams: "Grid & Particle Settings",
+    dotCount: "Dot Count",
+    gridSpacing: "Grid Spacing (px)",
+    dotSize: "Dot Size",
+    waveWidth: "Wave Width",
+    animSpeed: "Animation Speed",
+    groupExport: "Loop Recording",
+    loopDuration: "Video Duration",
+    format: "Format",
+    resolution: "Resolution",
+    optNative: "Screen (1:1)",
+    quality: "Quality (Bitrate)",
+    optBitrateLow: "Low (5 Mbps)",
+    optBitrateMed: "Medium (12 Mbps)",
+    optBitrateHigh: "High (25 Mbps)",
+    optBitrateUltra: "Ultra (50 Mbps)",
+    btnPng: "Download PNG",
+    btnVideo: "Record Video",
+    btnRecording: "Recording"
+  },
+  ru: {
+    title: "Настройки",
+    subtitle: "Настройте параметры обоев под себя",
+    groupMode: "Режим и Движение",
+    layout: "Расположение",
+    optGrid: "Сетка (Классическая)",
+    optDrones: "Шоу дронов (Волны)",
+    optRandom: "Хаотичный",
+    waveType: "Тип волны",
+    optHorizontal: "Горизонтальная",
+    optRadial: "Радиальная",
+    optDiagonal: "Диагональная",
+    moveType: "Тип движения",
+    optStaticNoFlicker: "Статично (Без мерцания)",
+    optFlickerNoMotion: "Мерцание (Без движения)",
+    optDrift: "Дрейф (Космос)",
+    optFly: "Полёт (Кометы)",
+    flyDirection: "Направление полёта",
+    optDirRandom: "Случайно",
+    optDirRight: "Вправо ➔",
+    optDirLeft: "Влево ⬅",
+    optDirDown: "Вниз ⬇",
+    optDirUp: "Вверх ⬆",
+    optDirDiagonal: "По диагонали ↘",
+    groupAppearance: "Внешний вид",
+    bgColor: "Цвет фона",
+    dotColor: "Цвет точек",
+    dotShape: "Форма элементов",
+    optCircle: "Круги",
+    optSquare: "Квадраты",
+    optDiamond: "Ромбы",
+    trailLength: "Длина шлейфа (Trails)",
+    groupParams: "Параметры сетки и частиц",
+    dotCount: "Количество точек",
+    gridSpacing: "Шаг сетки (px)",
+    dotSize: "Размер точек",
+    waveWidth: "Ширина волны",
+    animSpeed: "Скорость анимации",
+    groupExport: "Запись петли (Loop)",
+    loopDuration: "Длина видео",
+    format: "Формат",
+    resolution: "Разрешение",
+    optNative: "Экранное (1:1)",
+    quality: "Качество (Bitrate)",
+    optBitrateLow: "Низкое (5 Mbps)",
+    optBitrateMed: "Среднее (12 Mbps)",
+    optBitrateHigh: "Высокое (25 Mbps)",
+    optBitrateUltra: "Ультра (50 Mbps)",
+    btnPng: "Скачать PNG",
+    btnVideo: "Записать видео",
+    btnRecording: "Запись"
+  }
+};
+
+const langSelect = document.getElementById('langSelect');
+let currentLang = 'en';
+
+function setLanguage(lang) {
+  currentLang = lang;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (translations[lang][key]) {
+      el.textContent = translations[lang][key];
+    }
+  });
+}
+
+langSelect.addEventListener('change', (e) => {
+  setLanguage(e.target.value);
+});
+
 const layoutModeSelect = document.getElementById('layoutMode');
 const waveModeSelect = document.getElementById('waveMode');
 const moveModeSelect = document.getElementById('moveMode');
@@ -10,7 +135,6 @@ const dotColorInput = document.getElementById('dotColor');
 const dotShapeSelect = document.getElementById('dotShape');
 
 const trailLengthInput = document.getElementById('trailLength');
-
 const dotCountInput = document.getElementById('dotCount');
 const gridSpacingInput = document.getElementById('gridSpacing');
 const dotSizeInput = document.getElementById('dotSize');
@@ -146,7 +270,6 @@ function toggleModeControls() {
     waveWidthContainer.style.display = 'flex';
   }
 
-  // Показывать регулировку скорости, только если есть анимация
   flickerSpeedContainer.style.display = (moveMode === 'none') ? 'none' : 'flex';
   trailContainer.style.display = (moveMode === 'drift' || moveMode === 'fly') ? 'flex' : 'none';
   flyDirectionContainer.style.display = moveMode === 'fly' ? 'flex' : 'none';
@@ -206,7 +329,6 @@ function animate() {
   dots.forEach(dot => {
     let alpha = 1.0;
 
-    // Расчёт прозрачности только если не выбран режим "Статично (Без мерцания)"
     if (moveMode !== 'none') {
       if (mode === 'drones') {
         let spatialPhase = 0;
@@ -324,7 +446,7 @@ btnExportMp4.addEventListener('click', () => {
   const chunks = [];
 
   btnExportMp4.disabled = true;
-  btnExportMp4.innerText = `Запись (${duration}s)...`;
+  btnExportMp4.innerText = `${translations[currentLang].btnRecording} (${duration}s)...`;
 
   recorder.ondataavailable = e => {
     if (e.data && e.data.size > 0) chunks.push(e.data);
@@ -346,7 +468,7 @@ btnExportMp4.addEventListener('click', () => {
     resizeCanvas();
 
     btnExportMp4.disabled = false;
-    btnExportMp4.innerText = 'Записать видео';
+    btnExportMp4.innerText = translations[currentLang].btnVideo;
   };
 
   startTime = Date.now();
@@ -371,6 +493,7 @@ btnExportPng.addEventListener('click', () => {
   link.click();
 });
 
+setLanguage('en');
 resizeCanvas();
 toggleModeControls();
 animate();
