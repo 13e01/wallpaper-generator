@@ -53,7 +53,10 @@ const translations = {
     optBitrateUltra: "Ultra (50 Mbps)",
     btnPng: "Download PNG",
     btnVideo: "Record Video",
-    btnRecording: "Recording"
+    btnRecording: "Recording",
+    modalTitle: "About Project",
+    modalDesc: "Live Wallpaper Generator is a lightweight tool created with Vanilla JS and HTML5 Canvas to generate customizable seamless live wallpapers.",
+    modalStar: "If you like this project, please consider giving it a star on GitHub!"
   },
   ru: {
     title: "Настройки",
@@ -105,7 +108,10 @@ const translations = {
     optBitrateUltra: "Ультра (50 Mbps)",
     btnPng: "Скачать PNG",
     btnVideo: "Записать видео",
-    btnRecording: "Запись"
+    btnRecording: "Запись",
+    modalTitle: "О проекте",
+    modalDesc: "Live Wallpaper Generator — это инструмент на Vanilla JS и HTML5 Canvas для генерации настраиваемых бесшовных живых обоев.",
+    modalStar: "Если вам понравился проект, поставьте звездочку (Star) на GitHub!"
   }
 };
 
@@ -116,7 +122,7 @@ function setLanguage(lang) {
   currentLang = lang;
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
-    if (translations[lang][key]) {
+    if (translations[lang] && translations[lang][key]) {
       el.textContent = translations[lang][key];
     }
   });
@@ -125,6 +131,27 @@ function setLanguage(lang) {
 langSelect.addEventListener('change', (e) => {
   setLanguage(e.target.value);
 });
+
+// Modal Logic
+const btnAbout = document.getElementById('btnAbout');
+const aboutModal = document.getElementById('aboutModal');
+const btnCloseModal = document.getElementById('btnCloseModal');
+
+if (btnAbout && aboutModal && btnCloseModal) {
+  btnAbout.addEventListener('click', () => {
+    aboutModal.classList.add('active');
+  });
+
+  btnCloseModal.addEventListener('click', () => {
+    aboutModal.classList.remove('active');
+  });
+
+  aboutModal.addEventListener('click', (e) => {
+    if (e.target === aboutModal) {
+      aboutModal.classList.remove('active');
+    }
+  });
+}
 
 const layoutModeSelect = document.getElementById('layoutMode');
 const waveModeSelect = document.getElementById('waveMode');
@@ -468,7 +495,7 @@ btnExportMp4.addEventListener('click', () => {
     resizeCanvas();
 
     btnExportMp4.disabled = false;
-    btnExportMp4.innerText = translations[currentLang].btnVideo;
+    setLanguage(currentLang);
   };
 
   startTime = Date.now();
