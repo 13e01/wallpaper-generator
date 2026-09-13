@@ -24,8 +24,17 @@
           <label class="control-item">
             <span>Расположение</span>
             <select id="layoutMode" class="select-input">
+              <option value="drones">Шоу дронов (Волны)</option>
+              <option value="grid">Сетка (Классическая)</option>
               <option value="random">Хаотичный</option>
-              <option value="grid">Сетка</option>
+            </select>
+          </label>
+          <label class="control-item" id="waveModeContainer">
+            <span>Тип волны</span>
+            <select id="waveMode" class="select-input">
+              <option value="horizontal">Горизонтальная</option>
+              <option value="radial">Радиальная</option>
+              <option value="diagonal">Диагональная</option>
             </select>
           </label>
           <label class="control-item">
@@ -59,11 +68,11 @@
 
         <div class="control-group">
           <h3>Параметры</h3>
-          <label class="control-item" id="dotCountContainer">
+          <label class="control-item" id="dotCountContainer" style="display: none;">
             <span>Количество точек</span>
             <input type="range" id="dotCount" min="10" max="1000" value="150">
           </label>
-          <label class="control-item" id="gridSpacingContainer" style="display: none;">
+          <label class="control-item" id="gridSpacingContainer">
             <span>Шаг сетки (px)</span>
             <input type="range" id="gridSpacing" min="15" max="100" value="35">
           </label>
@@ -71,8 +80,12 @@
             <span>Размер точек</span>
             <input type="range" id="dotSize" min="1" max="10" value="2">
           </label>
+          <label class="control-item" id="waveWidthContainer">
+            <span>Ширина волны</span>
+            <input type="range" id="waveWidth" min="1" max="20" value="8">
+          </label>
           <label class="control-item">
-            <span>Частота фазы</span>
+            <span>Скорость волны</span>
             <input type="range" id="flickerSpeed" min="1" max="10" value="5">
           </label>
         </div>

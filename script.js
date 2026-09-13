@@ -2,6 +2,7 @@ const canvas = document.getElementById('wallpaperCanvas');
 const ctx = canvas.getContext('2d');
 
 const layoutModeSelect = document.getElementById('layoutMode');
+const waveModeSelect = document.getElementById('waveMode');
 const moveModeSelect = document.getElementById('moveMode');
 const bgColorInput = document.getElementById('bgColor');
 const dotColorInput = document.getElementById('dotColor');
@@ -10,6 +11,7 @@ const dotShapeSelect = document.getElementById('dotShape');
 const dotCountInput = document.getElementById('dotCount');
 const gridSpacingInput = document.getElementById('gridSpacing');
 const dotSizeInput = document.getElementById('dotSize');
+const waveWidthInput = document.getElementById('waveWidth');
 const flickerSpeedInput = document.getElementById('flickerSpeed');
 
 const loopDurationSelect = document.getElementById('loopDuration');
@@ -18,6 +20,8 @@ const btnExportMp4 = document.getElementById('btnExportMp4');
 
 const dotCountContainer = document.getElementById('dotCountContainer');
 const gridSpacingContainer = document.getElementById('gridSpacingContainer');
+const waveModeContainer = document.getElementById('waveModeContainer');
+const waveWidthContainer = document.getElementById('waveWidthContainer');
 
 let dots = [];
 let dpr = 1;
@@ -58,13 +62,13 @@ function initDots() {
       dots.push({
         x: Math.random() * logicalWidth,
         y: Math.random() * logicalHeight,
-        radiusOffset: Math.random() * 20,
+        radiusOffset: Math.random() * 15,
         phaseOffset: Math.random() * Math.PI * 2,
         cycles: Math.floor(Math.random() * 3) + 1,
         baseRadius: Math.random() * 1.5 + 0.5
       });
     }
-  } else if (mode === 'grid') {
+  } else {
     const spacing = parseInt(gridSpacingInput.value);
     const cols = Math.floor(logicalWidth / spacing);
     const rows = Math.floor(logicalHeight / spacing);
@@ -77,7 +81,7 @@ function initDots() {
         dots.push({
           x: offsetX + c * spacing,
           y: offsetY + r * spacing,
-          radiusOffset: Math.random() * 10,
+          radiusOffset: Math.random() * 8,
           phaseOffset: Math.random() * Math.PI * 2,
           cycles: Math.floor(Math.random() * 3) + 1,
           baseRadius: 1
@@ -89,12 +93,22 @@ function initDots() {
 
 function toggleModeControls() {
   const mode = layoutModeSelect.value;
+  
   if (mode === 'random') {
     dotCountContainer.style.display = 'flex';
     gridSpacingContainer.style.display = 'none';
-  } else {
+    waveModeContainer.style.display = 'none';
+    waveWidthContainer.style.display = 'none';
+  } else if (mode === 'grid') {
     dotCountContainer.style.display = 'none';
     gridSpacingContainer.style.display = 'flex';
+    waveModeContainer.style.display = 'none';
+    waveWidthContainer.style.display = 'none';
+  } else if (mode === 'drones') {
+    dotCountContainer.style.display = 'none';
+    gridSpacingContainer.style.display = 'flex';
+    waveModeContainer.style.display = 'flex';
+    waveWidthContainer.style.display = 'flex';
   }
   initDots();
 }
@@ -124,12 +138,44 @@ function animate() {
   const progress = (elapsedTime / loopDuration) * Math.PI * 2;
 
   const globalSizeMultiplier = parseFloat(dotSizeInput.value);
+  const speedVal = parseFloat(flickerSpeedInput.value);
+  const waveWidthVal = parseFloat(waveWidthInput.value);
+  
+  const mode = layoutModeSelect.value;
+  const waveMode = waveModeSelect.value;
   const isDrift = moveModeSelect.value === 'drift';
   const shape = dotShapeSelect.value;
   const rgb = hexToRgb(dotColorInput.value);
 
+  const logicalWidth = canvas.width / dpr;
+  const logicalHeight = canvas.height / dpr;
+  const centerX = logicalWidth / 2;
+  const centerY = logicalHeight / 2;
+
   dots.forEach(dot => {
-    const alpha = 0.1 + 0.8 * (0.5 + 0.5 * Math.sin(progress * dot.cycles + dot.phaseOffset));
+    let alpha = 0;
+
+    if (mode === 'drones') {
+      let spatialPhase = 0;
+      // Используем ширину волны для регулировки плотности полосы
+      const waveFreq = waveWidthVal * 0.002;
+
+      if (waveMode === 'horizontal') {
+        spatialPhase = dot.x * waveFreq;
+      } else if (waveMode === 'radial') {
+        const dx = dot.x - centerX;
+        const dy = dot.y - centerY;
+        spatialPhase = Math.sqrt(dx * dx + dy * dy) * waveFreq;
+      } else if (waveMode === 'diagonal') {
+        spatialPhase = (dot.x + dot.y) * waveFreq;
+      }
+
+      // Плавная регулировка волны без долгой «чёрной пропасти»
+      const rawWave = Math.sin((progress * (speedVal / 3)) - spatialPhase);
+      alpha = 0.5 + 0.5 * rawWave; // Градиент от 0 до 1 без обрезания нижнего спектра
+    } else {
+      alpha = 0.1 + 0.8 * (0.5 + 0.5 * Math.sin(progress * dot.cycles + dot.phaseOffset));
+    }
 
     let currentX = dot.x;
     let currentY = dot.y;
@@ -143,14 +189,15 @@ function animate() {
     const renderY = currentY * dpr;
     const currentRadius = dot.baseRadius * globalSizeMultiplier * dpr;
 
-    ctx.fillStyle = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${Math.max(0, alpha)})`;
-    drawShape(renderX, renderY, currentRadius, shape);
+    if (alpha > 0.02) {
+      ctx.fillStyle = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${alpha})`;
+      drawShape(renderX, renderY, currentRadius, shape);
+    }
   });
 
   requestAnimationFrame(animate);
 }
 
-// ЭКСПОРТ В БЕСШОВНОЕ ВИДЕО
 btnExportMp4.addEventListener('click', () => {
   const duration = parseFloat(loopDurationSelect.value);
   const stream = canvas.captureStream(60);
@@ -171,7 +218,7 @@ btnExportMp4.addEventListener('click', () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `seamless_wallpaper_${duration}s.webm`;
+    a.download = `drone_wallpaper_${duration}s.webm`;
     a.click();
     URL.revokeObjectURL(url);
 
