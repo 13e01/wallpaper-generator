@@ -11,13 +11,17 @@ const dotCountInput = document.getElementById('dotCount');
 const gridSpacingInput = document.getElementById('gridSpacing');
 const dotSizeInput = document.getElementById('dotSize');
 const flickerSpeedInput = document.getElementById('flickerSpeed');
+
+const loopDurationSelect = document.getElementById('loopDuration');
 const btnExportPng = document.getElementById('btnExportPng');
+const btnExportMp4 = document.getElementById('btnExportMp4');
 
 const dotCountContainer = document.getElementById('dotCountContainer');
 const gridSpacingContainer = document.getElementById('gridSpacingContainer');
 
 let dots = [];
 let dpr = 1;
+let startTime = Date.now();
 
 function hexToRgb(hex) {
   const bigint = parseInt(hex.slice(1), 16);
@@ -54,12 +58,10 @@ function initDots() {
       dots.push({
         x: Math.random() * logicalWidth,
         y: Math.random() * logicalHeight,
-        vx: (Math.random() - 0.5) * 0.3,
-        vy: (Math.random() - 0.5) * 0.3,
-        baseRadius: Math.random() * 1.5 + 0.5,
-        alpha: Math.random(),
-        speed: (Math.random() * 0.02 + 0.005),
-        factor: Math.random() > 0.5 ? 1 : -1
+        radiusOffset: Math.random() * 20,
+        phaseOffset: Math.random() * Math.PI * 2,
+        cycles: Math.floor(Math.random() * 3) + 1,
+        baseRadius: Math.random() * 1.5 + 0.5
       });
     }
   } else if (mode === 'grid') {
@@ -75,12 +77,10 @@ function initDots() {
         dots.push({
           x: offsetX + c * spacing,
           y: offsetY + r * spacing,
-          vx: (Math.random() - 0.5) * 0.2,
-          vy: (Math.random() - 0.5) * 0.2,
-          baseRadius: 1,
-          alpha: Math.random(),
-          speed: (Math.random() * 0.02 + 0.005),
-          factor: Math.random() > 0.5 ? 1 : -1
+          radiusOffset: Math.random() * 10,
+          phaseOffset: Math.random() * Math.PI * 2,
+          cycles: Math.floor(Math.random() * 3) + 1,
+          baseRadius: 1
         });
       }
     }
@@ -119,41 +119,73 @@ function animate() {
   ctx.fillStyle = bgColorInput.value;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+  const loopDuration = parseFloat(loopDurationSelect.value);
+  const elapsedTime = ((Date.now() - startTime) / 1000) % loopDuration;
+  const progress = (elapsedTime / loopDuration) * Math.PI * 2;
+
   const globalSizeMultiplier = parseFloat(dotSizeInput.value);
-  const globalSpeedMultiplier = parseFloat(flickerSpeedInput.value) / 5;
   const isDrift = moveModeSelect.value === 'drift';
   const shape = dotShapeSelect.value;
   const rgb = hexToRgb(dotColorInput.value);
 
-  const logicalWidth = canvas.width / dpr;
-  const logicalHeight = canvas.height / dpr;
-
   dots.forEach(dot => {
-    dot.alpha += dot.speed * globalSpeedMultiplier * dot.factor;
-    if (dot.alpha >= 1 || dot.alpha <= 0.05) {
-      dot.factor *= -1;
-    }
+    const alpha = 0.1 + 0.8 * (0.5 + 0.5 * Math.sin(progress * dot.cycles + dot.phaseOffset));
+
+    let currentX = dot.x;
+    let currentY = dot.y;
 
     if (isDrift) {
-      dot.x += dot.vx;
-      dot.y += dot.vy;
-
-      if (dot.x < 0) dot.x = logicalWidth;
-      if (dot.x > logicalWidth) dot.x = 0;
-      if (dot.y < 0) dot.y = logicalHeight;
-      if (dot.y > logicalHeight) dot.y = 0;
+      currentX += Math.cos(progress) * dot.radiusOffset;
+      currentY += Math.sin(progress) * dot.radiusOffset;
     }
 
-    const renderX = dot.x * dpr;
-    const renderY = dot.y * dpr;
+    const renderX = currentX * dpr;
+    const renderY = currentY * dpr;
     const currentRadius = dot.baseRadius * globalSizeMultiplier * dpr;
 
-    ctx.fillStyle = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${Math.max(0, dot.alpha)})`;
+    ctx.fillStyle = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${Math.max(0, alpha)})`;
     drawShape(renderX, renderY, currentRadius, shape);
   });
 
   requestAnimationFrame(animate);
 }
+
+// ЭКСПОРТ В БЕСШОВНОЕ ВИДЕО
+btnExportMp4.addEventListener('click', () => {
+  const duration = parseFloat(loopDurationSelect.value);
+  const stream = canvas.captureStream(60);
+  
+  const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') 
+    ? 'video/webm;codecs=vp9' 
+    : 'video/webm';
+
+  const recorder = new MediaRecorder(stream, { mimeType });
+  const chunks = [];
+
+  btnExportMp4.disabled = true;
+  btnExportMp4.innerText = `Запись петли (${duration}s)...`;
+
+  recorder.ondataavailable = e => chunks.push(e.data);
+  recorder.onstop = () => {
+    const blob = new Blob(chunks, { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `seamless_wallpaper_${duration}s.webm`;
+    a.click();
+    URL.revokeObjectURL(url);
+
+    btnExportMp4.disabled = false;
+    btnExportMp4.innerText = 'Записать бесшовное видео';
+  };
+
+  startTime = Date.now();
+  recorder.start();
+
+  setTimeout(() => {
+    recorder.stop();
+  }, duration * 1000);
+});
 
 window.addEventListener('resize', resizeCanvas);
 layoutModeSelect.addEventListener('change', toggleModeControls);

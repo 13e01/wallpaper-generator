@@ -72,15 +72,23 @@
             <input type="range" id="dotSize" min="1" max="10" value="2">
           </label>
           <label class="control-item">
-            <span>Скорость мерцания</span>
+            <span>Частота фазы</span>
             <input type="range" id="flickerSpeed" min="1" max="10" value="5">
           </label>
         </div>
 
         <div class="control-group">
-          <h3>Экспорт</h3>
-          <button id="btnExportPng" class="btn btn-primary">Cкачать PNG</button>
-          <button id="btnExportMp4" class="btn btn-secondary" disabled title="Добавим на следующем шаге">Cкачать MP4 (Скоро)</button>
+          <h3>Запись петли (Loop)</h3>
+          <label class="control-item">
+            <span>Длина видео (сек)</span>
+            <select id="loopDuration" class="select-input">
+              <option value="4">4 сек</option>
+              <option value="6" selected>6 сек</option>
+              <option value="8">8 сек</option>
+            </select>
+          </label>
+          <button id="btnExportPng" class="btn btn-primary">Скачать PNG</button>
+          <button id="btnExportMp4" class="btn btn-secondary">Записать бесшовное видео</button>
         </div>
       </div>
     </aside>
