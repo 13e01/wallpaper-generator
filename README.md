@@ -60,4 +60,5 @@ Open `index.html` in any modern browser and you're in.
 
 ## License
 
-Not licensed yet — worth adding one (MIT, for instance) if this grows into something others contribute to.
+This project is licensed under the MIT License.
+See the [LICENSE](LICENSE) file for details.
